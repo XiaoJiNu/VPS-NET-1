@@ -129,7 +129,7 @@ def img_resize(img):
 
 
 class VPSNet(nn.Module):
-    def __init__(self,num_classes = 3):
+    def __init__(self,num_classes = 4):
         super(VPSNet,self).__init__()
         
         self.model = nn.Sequential(
@@ -167,12 +167,14 @@ def pred_image(model,img_name):
     prediction = model(img)
     prediction = torch.argmax(prediction.data).cpu().item()
     classification = 'vacant'
-    if (prediction == 2):
+    if (prediction == 3):
         classification = 'vacant'
-    elif (prediction == 0):
-        classification = 'non-vacant'
     elif (prediction == 1):
+        classification = 'non-vacant'
+    elif (prediction == 2):
         classification = 'parking'
+    elif (prediction == 0):
+        classification = 'handicapped'
     return classification
 
 
@@ -203,15 +205,16 @@ def check_vacancy(img,mat,model):
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
-path = 'model_save/98_test.pth'
+path = 'model_save/VPS_handicapped.pth'
 model = VPSNet()
 model.load_state_dict(torch.load(path))
 model = model.cuda()
 
-#load image with cv2.imread, load mat with scipy.io
+#load image with cv2.imread,conver to RGB, load mat with scipy.io
 
 #slots = check_vacancy(img,mat,model)
-#for image,classification,pts in slots:
-    #image is the cutted slot
-    #classfication is the classfication
-    #pts is the 4 pts of the slot
+#for slot in slots:
+#    for image,classification,pts in slot:
+        #image is the cutted slot
+        #classfication is the classfication
+        #pts is the 4 pts of the slot
