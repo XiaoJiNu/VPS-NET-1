@@ -211,8 +211,7 @@ model = model.cuda()
 #load image with cv2.imread, load mat with scipy.io
 
 #slots = check_vacancy(img,mat,model)
-#for slot in slots:
-#    for image,classification,pts in slot:
-        #image is the cutted slot
-        #classfication is the classfication
-        #pts is the 4 pts of the slot
+#for image,classification,pts in slots:
+    #image is the cutted slot
+    #classfication is the classfication
+    #pts is the 4 pts of the slot
