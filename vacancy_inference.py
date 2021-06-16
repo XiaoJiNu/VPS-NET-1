@@ -68,11 +68,6 @@ def get_slots_model(img,model_slot_dict):
     if len(mat['marks']) == 0:
         return warped_images
     for i in range(len(model_slot_dict['slots'])):
-        vacancy = model_slot_dict['slots'][i][2]
-        if vacancy == 0 :
-            vacancy = 'vacant'
-        elif vacancy == 1:
-            vacancy = 'non-vacant'
         x1,y1,dir_x1,dir_y1,_ = model_slot_dict['marks'][i]
         x2,y2,dir_x2,dir_y2,_ = model_slot_dict['marks'][i+1]
         p1 = [x1,y1]
