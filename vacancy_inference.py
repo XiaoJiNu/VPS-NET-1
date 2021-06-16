@@ -114,7 +114,7 @@ def get_slots_model(img,model_slot_dict):
         pts_dst = np.array([[0.0,0.0],[width, 0.0],[ 0.0,height],[width,height]],np.float32)
         m_warp = cv2.getPerspectiveTransform(pts_src, pts_dst)
         warp_img = cv2.warpPerspective(img, m_warp, (int(width), int(height)))
-        warped_images.append([warp_img,pts,vacancy])
+        warped_images.append([warp_img,pts])
     return warped_images
 
 
