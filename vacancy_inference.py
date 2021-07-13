@@ -20,21 +20,16 @@ def get_distance_2_pts(p1,p2):
     return distance
 
 # w is the length of the rectangle
-def get_4_pts(p1,p2,img,direction):
-    flip = 1
-    if direction == 'left' :
-        flip = -1
-    elif direction == 'right':
-        flip = 1
+def get_4_pts(p1,p2,img):
     x_max,y_max,_ = img.shape
     x1,y1 = p1
     x2,y2 = p2
     alpha = sqrt((y1-y2)**2+(x2-x1)**2)
     
     if alpha > 200 :
-        w = 125*flip
+        w = -125
     else:
-        w = 250*flip
+        w = -250
     
     sin_theta = (y1-y2)/alpha
     cos_theta = (x2-x1)/alpha
@@ -63,54 +58,27 @@ def get_4_pts(p1,p2,img,direction):
     return p1,p2,p3,p4
 
 
-def get_slots_model(img,model_slot_dict):
-    warped_images = []
-    if len(mat['marks']) == 0:
-        return warped_images
-    for i in range(len(model_slot_dict['slots'])):
-        x1,y1,dir_x1,dir_y1,_ = model_slot_dict['marks'][i]
-        x2,y2,dir_x2,dir_y2,_ = model_slot_dict['marks'][i+1]
+def get_slots_model(img,mat):
+    warped_images_with_vacancy = []
+    for s in mat['slots']:
+        #get the four points
+        p1_num = s[0] - 1
+        p2_num = s[1] - 1
+        x1,y1,dir_x1,dir_y1,_ = mat['marks'][p1_num]
+        x2,y2,dir_x2,dir_y2,_ = mat['marks'][p2_num]
         p1 = [x1,y1]
         p2 = [x2,y2]
-        #added extra for prescan dataset
-        mid_x = img.shape[0]/2
-        mid_y = img.shape[0]/2
-        vec1_x = x1-mid_x
-        vec2_x = x2-mid_x
-        vec1_y = y1-mid_y
-        vec2_y = y2-mid_y
-        vector = [vec1_x+vec2_x,vec1_y+vec2_y]
-        vec_x,vec_y = vector
-        direction = 'right'
-        if (vec_x <= 0) and (vec_y <= 0) : #1st quad
-            direction = 'left'
-        elif (vec_x > 0) and (vec_y <= 0) : #2nd quad
-            direction = 'right'
-        elif (vec_x <= 0) and (vec_y > 0) : #3rd quad
-            direction = 'left'
-        elif (vec_x > 0) and (vec_y  > 0) : #4th quad
-            direction = 'right'
-            
-        if (direction == 'right') or (direction == 'left'):
-            if y2 > y1 : #flip points
-                p_temp = p1
-                p1 = p2
-                p2 = p_temp
-                
-        pts = get_4_pts(p1,p2,img,direction)
-        
-        ##
+        pts = get_4_pts_old(p1,p2,img)
         _,_,p3,p4 = pts
-
-        #get slot only image(s)
+        #get slot only image(s))
         pts_src = np.array([p1,p2,p3,p4],np.float32)    
         width = get_distance_2_pts(p1,p2)
         height = get_distance_2_pts(p4,p2)
         pts_dst = np.array([[0.0,0.0],[width, 0.0],[ 0.0,height],[width,height]],np.float32)
         m_warp = cv2.getPerspectiveTransform(pts_src, pts_dst)
         warp_img = cv2.warpPerspective(img, m_warp, (int(width), int(height)))
-        warped_images.append([warp_img,pts])
-    return warped_images
+        warped_images_with_vacancy.append([warp_img,pts ])
+    return warped_images_with_vacancy
 
 
 
@@ -200,15 +168,16 @@ def check_vacancy(img,mat,model):
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
-path = 'model_save/VPS_handicapped.pth'
+path = 'model_save/VPS_handicapped_NEW.pth'
 model = VPSNet()
 model.load_state_dict(torch.load(path))
 model = model.cuda()
 
-#load image with cv2.imread,conver to RGB, load mat with scipy.io
+#load image with cv2.imread,convert to RGB, load mat with scipy.io
 
 #slots = check_vacancy(img,mat,model)
-#for image,classification,pts in slots:
-    #image is the cutted slot
-    #classfication is the classfication
-    #pts is the 4 pts of the slot
+#for slot in slots:
+#    for image,classification,pts in slot:
+        #image is the cutted slot
+        #classfication is the classfication
+        #pts is the 4 pts of the slot
