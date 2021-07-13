@@ -68,7 +68,7 @@ def get_slots_model(img,mat):
         x2,y2,dir_x2,dir_y2,_ = mat['marks'][p2_num]
         p1 = [x1,y1]
         p2 = [x2,y2]
-        pts = get_4_pts_old(p1,p2,img)
+        pts = get_4_pts(p1,p2,img)
         _,_,p3,p4 = pts
         #get slot only image(s))
         pts_src = np.array([p1,p2,p3,p4],np.float32)    
